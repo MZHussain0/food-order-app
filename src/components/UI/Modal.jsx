@@ -5,8 +5,8 @@ import ReactDOM from "react-dom";
 import styles from "./Modal.module.css";
 
 // backdrop to up in a particular position in dom
-const Backdrop = (props) => {
-  return <div className={styles.backdrop} />;
+const Backdrop = ({ onCloseCart }) => {
+  return <div className={styles.backdrop} onClick={onCloseCart} />;
 };
 
 const ModalOverlays = (props) => {
@@ -22,7 +22,10 @@ const portalElement = document.getElementById("overlays");
 const Modal = (props) => {
   return (
     <Fragment>
-      {ReactDOM.createPortal(<Backdrop />, portalElement)}
+      {ReactDOM.createPortal(
+        <Backdrop onCloseCart={props.onCloseCart} />,
+        portalElement
+      )}
       {ReactDOM.createPortal(
         <ModalOverlays>{props.children}</ModalOverlays>,
         portalElement
