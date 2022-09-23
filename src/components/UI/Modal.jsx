@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 // Styles Import
 import styles from "./Modal.module.css";
 
+// backdrop to up in a particular position in dom
 const Backdrop = (props) => {
   return <div className={styles.backdrop} />;
 };
