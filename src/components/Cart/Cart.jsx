@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
 // Styles import
 import styles from "./Cart.module.css";
@@ -9,8 +9,12 @@ import CartItem from "./CartItem";
 
 // Context imports
 import CartContext from "../../store/cart-context";
+import Checkout from "./Checkout";
 
 const Cart = ({ onCloseCart }) => {
+  const [isCheckout, setIsCheckout] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const cartCtx = useContext(CartContext);
 
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
@@ -23,6 +27,40 @@ const Cart = ({ onCloseCart }) => {
   const cartItemAddHandler = (item) => {
     cartCtx.addItem({ ...item, amount: 1 });
   };
+
+  const orderHandler = () => {
+    setIsCheckout(true);
+  };
+
+  const orderSubmitHandler = async (userData) => {
+    setIsSubmitting(true);
+    const response = await fetch(
+      "https://foodapp-f1d14-default-rtdb.firebaseio.com/orders.json",
+      {
+        method: "POST",
+        body: JSON.stringify({ user: userData, orderedItems: cartCtx.items }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Something went wrong");
+    }
+
+    setIsSubmitting(false);
+  };
+
+  const modalActions = (
+    <div className={styles.actions}>
+      <button className={styles["button--alt"]} onClick={onCloseCart}>
+        Close
+      </button>
+      {hasItems && (
+        <button className={styles.button} onClick={orderHandler}>
+          Order
+        </button>
+      )}
+    </div>
+  );
 
   const cartItems = (
     <ul className={styles["cart-items"]}>
@@ -45,12 +83,10 @@ const Cart = ({ onCloseCart }) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={styles.actions}>
-        <button className={styles["button--alt"]} onClick={onCloseCart}>
-          Close
-        </button>
-        {hasItems && <button className={styles.button}>Order</button>}
-      </div>
+      {isCheckout && (
+        <Checkout onConfirm={orderSubmitHandler} onCancel={onCloseCart} />
+      )}
+      {!isCheckout && modalActions}
     </Modal>
   );
 };
